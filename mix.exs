@@ -46,9 +46,10 @@ defmodule Letterbox.MixProject do
       {:postgrex, "~> 0.19", only: :test},
       # The raw emails and their attachments, kept in the app's store.
       {:storehouse, "~> 0.2"},
-      # The webhooks of the mail providers, mounted in the app's router, and
-      # the tables' versions.
+      # The table's versions (Letterbox.Migrations) and the installer.
       {:phoenix_mountable, "~> 0.2.3"},
+      # mix letterbox.install. Without it, the task says what to do by hand.
+      {:igniter, "~> 0.6", optional: true},
       {:phoenix, "~> 1.7.14 or ~> 1.8"},
       {:plug, "~> 1.15"},
       # The webhooks' signatures (Plug.Crypto.secure_compare/2); 2.2.1 and

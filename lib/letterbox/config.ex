@@ -15,7 +15,7 @@ defmodule Letterbox.Config do
     * `:routing` - the app's routes (`Letterbox.Routing`): which mailbox
       takes which message. Required.
     * `:ingresses` - how messages reach the app, each by its name in the
-      webhook's path (`/…/webhooks/resend`): `Letterbox.Ingress.Resend`,
+      webhook's route (`Letterbox.Plug`): `Letterbox.Ingress.Resend`,
       `Letterbox.Ingress.Relay`, or `{module, opts}` of the app's own
       (`Letterbox.Ingress`).
     * `:trusted_servers` - the `authserv-id`s whose `Authentication-Results`

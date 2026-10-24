@@ -1,10 +1,25 @@
 defmodule Letterbox.Plug do
   @moduledoc """
-  The webhooks of the ingresses (`Letterbox.Ingress`): `POST
-  …/webhooks/:ingress`, mounted with `Letterbox.Router.letterbox/2`, or,
-  in an app without Phoenix's router:
+  The webhooks of the ingresses (`Letterbox.Ingress`), a route of the
+  app's own router. `mix letterbox.install` writes one for every
+  ingress, the ingress named by the path:
 
-      forward "/inbound", Letterbox.Plug, :webhook
+      scope "/inbound" do
+        pipe_through :webhooks
+        post "/webhooks/:ingress", Letterbox.Plug, []
+      end
+
+  The path, the scope and the pipeline are the app's to change: nothing
+  in Letterbox depends on them. A route can also name its ingress, one
+  route for each, at any path:
+
+      post "/mail/resend", Letterbox.Plug, ingress: :resend
+      post "/hooks/postfix", Letterbox.Plug, ingress: :relay
+
+  The ingress is the route's `:ingress` option, else the `:ingress`
+  parameter of its path. In an app without Phoenix's router, it is a Plug
+  like any other (`forward "/inbound/resend", Letterbox.Plug, ingress:
+  :resend`).
 
   It answers:
 
@@ -18,8 +33,8 @@ defmodule Letterbox.Plug do
     * `500` - it could not be kept (the store, the database): the
       provider sends it again later.
 
-  The mount takes no session and no CSRF token: a provider has neither.
-  Mount it in a pipeline without `:protect_from_forgery`.
+  The route takes no session and no CSRF token: a provider has neither.
+  Its pipeline must not have `:protect_from_forgery`.
   """
 
   @behaviour Plug
@@ -31,26 +46,22 @@ defmodule Letterbox.Plug do
   require Logger
 
   @impl Plug
-  def init(action), do: action
+  def init(opts) when is_list(opts) do
+    case Keyword.get(opts, :ingress) do
+      nil -> %{ingress: nil}
+      name when is_atom(name) or is_binary(name) -> %{ingress: to_string(name)}
+    end
+  end
 
   @impl Plug
-  def call(%{method: "POST"} = conn, _action) do
-    case ingress_name(conn) do
+  def call(%{method: "POST"} = conn, opts) do
+    case opts.ingress || conn.path_params["ingress"] do
+      name when is_binary(name) -> webhook(conn, name)
       nil -> respond(conn, 404, "not_found")
-      name -> webhook(conn, name)
     end
   end
 
-  def call(conn, _action), do: respond(conn, 405, "method_not_allowed")
-
-  defp ingress_name(%{path_params: %{"ingress" => name}}) when is_binary(name), do: name
-
-  defp ingress_name(%{path_info: path_info}) do
-    case Enum.take(path_info, -2) do
-      ["webhooks", name] -> name
-      _other -> nil
-    end
-  end
+  def call(conn, _opts), do: respond(conn, 405, "method_not_allowed")
 
   defp webhook(conn, name) do
     case Config.ingress(name) do

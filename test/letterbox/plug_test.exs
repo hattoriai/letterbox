@@ -12,7 +12,7 @@ defmodule Letterbox.PlugTest do
     |> then(fn conn ->
       Enum.reduce(headers, conn, fn {k, v}, conn -> put_req_header(conn, k, v) end)
     end)
-    |> Letterbox.Plug.call(:webhook)
+    |> Letterbox.Plug.call(Letterbox.Plug.init([]))
   end
 
   describe "the relay" do
@@ -59,6 +59,23 @@ defmodule Letterbox.PlugTest do
       assert webhook("relay", raw, []).status == 401
       assert Letterbox.list() == []
     end
+  end
+
+  test "a route at any path that names its ingress" do
+    raw = Letterbox.Email.build(to: "support@example.com", text: "x")
+
+    conn =
+      conn(:post, "/mail/hooks/postfix", raw)
+      |> put_req_header("authorization", "Bearer relay-test-token")
+      |> Letterbox.Plug.call(Letterbox.Plug.init(ingress: :relay))
+
+    assert conn.status == 204
+    assert [%{ingress: "relay", status: "delivered"}] = Letterbox.list()
+  end
+
+  test "a route with no ingress, by option or path, is a 404" do
+    conn = conn(:post, "/inbound/webhooks", "x") |> Letterbox.Plug.call(Letterbox.Plug.init([]))
+    assert conn.status == 404
   end
 
   test "an ingress not in the config is a 404" do

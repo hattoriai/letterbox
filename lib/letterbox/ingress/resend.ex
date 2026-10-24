@@ -4,8 +4,9 @@ defmodule Letterbox.Ingress.Resend do
 
       config :letterbox, ingresses: [resend: [secret: "whsec_…", api_key: "re_…"]]
 
-  In Resend, a webhook for the `email.received` event, to
-  `https://<app>/<mount>/webhooks/resend`, and its signing secret as
+  In Resend, a webhook for the `email.received` event, to its route
+  (`https://<app>/inbound/webhooks/resend`, as `mix letterbox.install`
+  writes it), and its signing secret as
   `:secret`. `:api_key` is a key of the account, which reads its emails.
 
   The webhook carries an email's id and envelope, not the email: Letterbox

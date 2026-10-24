@@ -1,8 +1,9 @@
 defmodule Letterbox.Ingress do
   @moduledoc """
   How messages reach the app: a provider's webhook, a relay, a module of
-  the app's own. Each is named in the config, and its webhook is
-  `POST <mount>/webhooks/<name>` (`Letterbox.Router`):
+  the app's own. Each is named in the config, and its webhook is a route
+  of the app's (`Letterbox.Plug`), `POST /inbound/webhooks/<name>` as
+  `mix letterbox.install` writes it:
 
       config :letterbox,
         ingresses: [

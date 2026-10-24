@@ -5,7 +5,8 @@ defmodule Letterbox.Ingress.Relay do
 
       config :letterbox, ingresses: [relay: [token: "a long random token"]]
 
-  A request is `POST <mount>/webhooks/relay` with the email as its body
+  A request is a `POST` to its route (`/inbound/webhooks/relay`, as
+  `mix letterbox.install` writes it) with the email as its body
   (`Content-Type: message/rfc822`), and the token as a bearer
   (`Authorization: Bearer <token>`) or as the password of basic auth (as
   Action Mailbox's relay takes it). Two headers help:
