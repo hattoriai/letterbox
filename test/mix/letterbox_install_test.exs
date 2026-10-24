@@ -1,5 +1,8 @@
 defmodule Mix.Tasks.Letterbox.InstallTest do
-  use ExUnit.Case, async: true
+  # Not async: while it works, Igniter puts the test app's config in the
+  # application environment (`config :letterbox, repo: Test.Repo`), and
+  # the other tests would read it.
+  use ExUnit.Case, async: false
 
   import Igniter.Test
 

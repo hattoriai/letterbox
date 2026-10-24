@@ -57,7 +57,7 @@ defmodule Letterbox.Pipeline do
               ingress: ingress,
               external_id: external_id,
               status: "received",
-              recipients: recipients(opts[:recipients]),
+              recipients: recipients(opts[:recipients], raw),
               meta: Map.new(opts[:meta] || %{}),
               raw_key: stored.key,
               raw_bytes: stored.bytes,
@@ -337,13 +337,7 @@ defmodule Letterbox.Pipeline do
 
   # What the list of messages shows, from the headers alone.
   defp summary(raw) do
-    head =
-      case :binary.match(raw, ["\r\n\r\n", "\n\n"]) do
-        {at, _length} -> binary_part(raw, 0, at)
-        :nomatch -> raw
-      end
-
-    headers = Header.parse(head)
+    headers = raw |> head() |> Header.parse()
     from = Letterbox.Address.parse(Header.get(headers, "from"))
 
     %{
@@ -371,6 +365,30 @@ defmodule Letterbox.Pipeline do
 
   defp recipients(nil), do: []
   defp recipients(list), do: Enum.map(list, &to_string/1)
+
+  # The envelope's recipients, else those the headers name (To, Cc,
+  # Delivered-To, X-Original-To), as the message's own `:recipients` are.
+  defp recipients(envelope, raw) do
+    case recipients(envelope) do
+      [] -> raw |> head() |> Header.parse() |> header_recipients()
+      list -> list
+    end
+  end
+
+  defp header_recipients(headers) do
+    ["to", "cc", "delivered-to", "x-original-to"]
+    |> Enum.flat_map(&Header.get_all(headers, &1))
+    |> Enum.flat_map(&Letterbox.Address.parse_list/1)
+    |> Enum.map(& &1.address)
+    |> Enum.uniq_by(&String.downcase/1)
+  end
+
+  defp head(raw) do
+    case :binary.match(raw, ["\r\n\r\n", "\n\n"]) do
+      {at, _length} -> binary_part(raw, 0, at)
+      :nomatch -> raw
+    end
+  end
 
   defp by_external_id(ingress, external_id) do
     repo().one(

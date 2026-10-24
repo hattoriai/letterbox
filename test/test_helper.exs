@@ -25,5 +25,6 @@ if url = System.get_env("DATABASE_URL") do
 end
 
 {:ok, _memory} = Storehouse.Memory.start_link()
+LetterboxTest.Host.start()
 
 ExUnit.start(exclude: exclude)

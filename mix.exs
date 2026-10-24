@@ -51,6 +51,9 @@ defmodule Letterbox.MixProject do
       # mix letterbox.install. Without it, the task says what to do by hand.
       {:igniter, "~> 0.6", optional: true},
       {:phoenix, "~> 1.7.14 or ~> 1.8"},
+      # The development page (Letterbox.Dev.Router).
+      {:phoenix_live_view, "~> 1.1"},
+      {:lazy_html, "~> 0.1", only: :test},
       {:plug, "~> 1.15"},
       # The webhooks' signatures (Plug.Crypto.secure_compare/2); 2.2.1 and
       # later, for EEF-CVE-2026-105963.
@@ -75,7 +78,7 @@ defmodule Letterbox.MixProject do
       name: "letterbox",
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w(lib mix.exs .formatter.exs README.md CHANGELOG.md LICENSE NOTICE)
+      files: ~w(lib priv/static mix.exs .formatter.exs README.md CHANGELOG.md LICENSE NOTICE)
     ]
   end
 
