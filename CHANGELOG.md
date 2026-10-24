@@ -5,7 +5,9 @@ All notable changes to Letterbox are documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and Letterbox follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## Unreleased
+
+## [0.1.0-rc.0] - 2026-10-24
 
 ### Added
 
