@@ -161,6 +161,14 @@ defmodule Mix.Tasks.Letterbox.Install do
 
       and give the endpoint's Plug.Parsers `body_reader: {Letterbox.RawBody, :read_body, []}`,
       so a webhook's signature can be checked. See Letterbox.Ingress.
+
+      For the development page, in the router's dev_routes block:
+
+          import Letterbox.Dev.Router
+          scope "/dev" do
+            pipe_through :browser
+            letterbox_dev "/letterbox"
+          end
       """
     end
   end
