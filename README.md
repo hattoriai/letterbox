@@ -196,10 +196,6 @@ DATABASE_URL=postgres://postgres:postgres@localhost/letterbox_test mix test
 mix credo --strict
 ```
 
-The charsets' tables are written from WHATWG's files: `mix run
-scripts/charsets.exs`. The media are made in
-[hattoriai/ideas](https://github.com/hattoriai/ideas).
-
 ## License
 
 MIT. See [LICENSE](https://github.com/hattoriai/letterbox/blob/main/LICENSE).
