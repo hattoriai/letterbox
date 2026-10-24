@@ -1,0 +1,34 @@
+From: =?UTF-8?Q?Jos=C3=A9_Mart=C3=ADnez?= <jose@example.com>
+To: photos+abc123@in.example.com
+Subject: =?ISO-8859-1?Q?F=E9rias_no_Algarve?= and more
+Message-ID: <a1@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="outer"
+
+--outer
+Content-Type: multipart/alternative; boundary="inner"
+
+--inner
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+
+Ol=E1, aqui est=E3o as fotos =80 100.
+--inner
+Content-Type: text/html; charset=utf-8
+
+<p>Ol&aacute;</p><img src="cid:logo1">
+--inner--
+--outer
+Content-Type: image/png
+Content-Disposition: inline
+Content-ID: <logo1>
+Content-Transfer-Encoding: base64
+
+iVBORw0KGgo=
+--outer
+Content-Type: image/jpeg
+Content-Disposition: attachment; filename*=utf-8''praia%20%C3%A0%20tarde.jpg
+Content-Transfer-Encoding: base64
+
+/9j/4AAQSkZJRg==
+--outer--
