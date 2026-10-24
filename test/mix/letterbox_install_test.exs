@@ -36,6 +36,19 @@ defmodule Mix.Tasks.Letterbox.InstallTest do
   end
   """
 
+  @endpoint """
+  defmodule TestWeb.Endpoint do
+    use Phoenix.Endpoint, otp_app: :test
+
+    plug Plug.Parsers,
+      parsers: [:urlencoded, :multipart, :json],
+      pass: ["*/*"],
+      json_decoder: Phoenix.json_library()
+
+    plug TestWeb.Router
+  end
+  """
+
   @mix_exs """
   defmodule Test.MixProject do
     use Mix.Project
@@ -60,6 +73,7 @@ defmodule Mix.Tasks.Letterbox.InstallTest do
             "lib/test_web/router.ex" => @router,
             "mix.exs" => @mix_exs,
             "lib/test/application.ex" => @application,
+            "lib/test_web/endpoint.ex" => @endpoint,
             "lib/test/repo.ex" =>
               "defmodule Test.Repo do\n  use Ecto.Repo, otp_app: :test, adapter: Ecto.Adapters.Postgres\nend\n"
           },
@@ -100,6 +114,11 @@ defmodule Mix.Tasks.Letterbox.InstallTest do
 
     refute router =~ "pipeline :webhooks"
     assert length(String.split(router, "Letterbox.Plug")) == 2
+  end
+
+  test "keeps a webhook's body as it was sent, in the endpoint" do
+    assert install() |> file("lib/test_web/endpoint.ex") =~
+             "body_reader: {PhoenixMountable.RawBody, :read_body, [TestWeb.Router]}"
   end
 
   test "configures the repo and the routes" do

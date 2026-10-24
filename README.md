@@ -90,8 +90,10 @@ scope "/inbound" do
 end
 ```
 
-A signed webhook needs its body as it was sent: give your endpoint's
-`Plug.Parsers` `body_reader: {Letterbox.RawBody, :read_body, []}`.
+A signed webhook needs its body as it was sent: the installer gives your
+endpoint's `Plug.Parsers` `body_reader: {PhoenixMountable.RawBody,
+:read_body, [MyAppWeb.Router]}`, which keeps it wherever you put the
+route.
 
 ## Attachments
 

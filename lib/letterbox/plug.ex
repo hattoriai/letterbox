@@ -35,13 +35,23 @@ defmodule Letterbox.Plug do
 
   The route takes no session and no CSRF token: a provider has neither.
   Its pipeline must not have `:protect_from_forgery`.
+
+  A signed webhook needs its body as it was sent: the plug declares it
+  (`use PhoenixMountable.RawBody`), and the endpoint's `Plug.Parsers`
+  keeps it with `body_reader: {PhoenixMountable.RawBody, :read_body,
+  [MyAppWeb.Router]}`, which `mix letterbox.install` adds. A relay's raw
+  email (`message/rfc822`) is passed by the parsers unread, and needs no
+  copy.
   """
 
   @behaviour Plug
 
+  use PhoenixMountable.RawBody
+
   import Plug.Conn
 
-  alias Letterbox.{Config, Pipeline, RawBody}
+  alias Letterbox.{Config, Pipeline}
+  alias PhoenixMountable.RawBody
 
   require Logger
 
@@ -83,7 +93,7 @@ defmodule Letterbox.Plug do
       {:body, {:error, :no_raw_body}} ->
         Logger.error(
           "Letterbox cannot check a webhook: the endpoint read its body before the router. " <>
-            "Give Plug.Parsers `body_reader: {Letterbox.RawBody, :read_body, []}`."
+            "Give Plug.Parsers `body_reader: {PhoenixMountable.RawBody, :read_body, [MyAppWeb.Router]}`."
         )
 
         respond(conn, 500, "no_raw_body")

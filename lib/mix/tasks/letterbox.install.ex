@@ -34,14 +34,17 @@ defmodule Mix.Tasks.Letterbox.Install do
       that were waiting are resumed, and those done with for 30 days are
       deleted.
 
+    * the endpoint's `Plug.Parsers` keeps a webhook's body as it was sent,
+      for its signature (`PhoenixMountable.RawBody`).
+
   Then say how messages reach the app, in `config/runtime.exs`
-  (`Letterbox.Ingress`), and give the endpoint's `Plug.Parsers` the body
-  reader that keeps a webhook's body as it was sent (`Letterbox.RawBody`).
+  (`Letterbox.Ingress`).
   """
 
   use PhoenixMountable.Install,
     otp_app: :letterbox,
     migrations: Letterbox.Migrations,
+    raw_body: true,
     manual: "See https://hexdocs.pm/letterbox/readme.html#install"
 
   if Code.ensure_loaded?(Igniter) do
@@ -159,8 +162,7 @@ defmodule Mix.Tasks.Letterbox.Install do
               ]
             ]
 
-      and give the endpoint's Plug.Parsers `body_reader: {Letterbox.RawBody, :read_body, []}`,
-      so a webhook's signature can be checked. See Letterbox.Ingress.
+      See Letterbox.Ingress.
 
       For the development page, in the router's dev_routes block:
 

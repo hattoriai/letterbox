@@ -28,7 +28,7 @@ and Letterbox follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Ingresses (`Letterbox.Ingress`): Resend's webhook (`Letterbox.Ingress.Resend`)
   and a relay of raw emails (`Letterbox.Ingress.Relay`), at a route of the
   app's own (`Letterbox.Plug`), with the body as it was sent
-  (`Letterbox.RawBody`).
+  (`PhoenixMountable.RawBody`).
 - `mix letterbox.install`, on Igniter.
 - The development page (`Letterbox.Dev.Router`).
 - `Letterbox.Test`, for an app's tests of its mailboxes and routes.

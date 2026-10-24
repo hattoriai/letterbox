@@ -6,6 +6,13 @@ defmodule Letterbox.PlugTest do
 
   @moduletag :db
 
+  defmodule Router do
+    use Phoenix.Router
+
+    # A path of the app's choosing: the reader finds the plug by itself.
+    post "/mail/from-resend", Letterbox.Plug, ingress: :resend
+  end
+
   defp webhook(name, body, headers) do
     conn(:post, "/inbound/webhooks/#{name}", body)
     |> Map.put(:path_params, %{"ingress" => name})
@@ -155,6 +162,50 @@ defmodule Letterbox.PlugTest do
 
       assert inbound.recipients == ["support@example.com"]
       assert_received {:processed, LetterboxTest.Recorder, _message}
+    end
+
+    test "through the endpoint's parsers, which read JSON first, with the shared reader" do
+      body =
+        JSON.encode!(%{
+          "type" => "email.received",
+          "data" => %{"email_id" => "em_parsed", "received_for" => ["support@example.com"]}
+        })
+
+      parsers =
+        Plug.Parsers.init(
+          parsers: [:json],
+          pass: ["*/*"],
+          json_decoder: JSON,
+          body_reader: {PhoenixMountable.RawBody, :read_body, [Router]}
+        )
+
+      conn =
+        Enum.reduce(signed(body), conn(:post, "/mail/from-resend", body), fn {k, v}, conn ->
+          put_req_header(conn, k, v)
+        end)
+        |> Plug.Parsers.call(parsers)
+
+      assert conn.body_params["type"] == "email.received"
+      assert Router.call(conn, Router.init([])).status == 204
+      assert [%{external_id: "em_parsed", status: "delivered"}] = Letterbox.list()
+    end
+
+    test "without the shared reader, the parsers' body cannot be checked: a 500 that says why" do
+      body = JSON.encode!(%{"type" => "email.received", "data" => %{"email_id" => "em_lost"}})
+      parsers = Plug.Parsers.init(parsers: [:json], pass: ["*/*"], json_decoder: JSON)
+
+      conn =
+        Enum.reduce(signed(body), conn(:post, "/mail/from-resend", body), fn {k, v}, conn ->
+          put_req_header(conn, k, v)
+        end)
+        |> Plug.Parsers.call(parsers)
+
+      log =
+        ExUnit.CaptureLog.capture_log(fn ->
+          assert Router.call(conn, Router.init([])).status == 500
+        end)
+
+      assert log =~ "PhoenixMountable.RawBody"
     end
 
     test "the same event twice is one message" do
