@@ -2,6 +2,18 @@
 
 ![Letterbox — Inbound email for Phoenix](https://raw.githubusercontent.com/hattoriai/letterbox/main/media/banner.png)
 
+<p>
+  <a href="https://hex.pm/packages/letterbox">
+    <img alt="Hex Version" src="https://img.shields.io/hexpm/v/letterbox.svg">
+  </a>
+  <a href="https://hexdocs.pm/letterbox">
+    <img src="https://img.shields.io/badge/docs-hexdocs-blue" alt="HexDocs">
+  </a>
+  <a href="https://github.com/hattoriai/letterbox/actions">
+    <img alt="CI Status" src="https://github.com/hattoriai/letterbox/actions/workflows/ci.yml/badge.svg">
+  </a>
+</p>
+
 **Inbound email for Phoenix: emails to your app, kept, read and given to
 your code.**
 
